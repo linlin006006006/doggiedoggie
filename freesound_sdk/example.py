@@ -97,7 +97,7 @@ def main():
         with tempfile.TemporaryDirectory() as tmpdir:
             tmppath = Path(tmpdir)
 
-            for i, sound in enumerate(sounds[:2]):  # Play first 2 sounds
+            for i, sound in enumerate(sounds[:3]):  # Play first 3 sounds
                 print(f"Downloading and playing sound {i + 1}: {sound['name']}")
                 print("-" * 40)
                 print(f"  ID: {sound['id']}")
