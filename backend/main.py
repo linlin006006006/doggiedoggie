@@ -22,7 +22,7 @@ sys.path.insert(0, str(sdk_dir))
 # Load environment variables
 load_dotenv()
 
-app = FastAPI(title="Music Generation API")
+app = FastAPI(title="Audio Generation API")
 
 # Enable CORS for React frontend
 app.add_middleware(
@@ -49,7 +49,11 @@ class PresetListResponse(BaseModel):
 @app.get("/")
 async def root():
     """Root endpoint."""
-    return {"message": "Music Generation API", "status": "running"}
+    return {
+        "message": "Audio Generation API", 
+        "status": "running",
+        "note": "Using Sound Effects API (free tier compatible)"
+    }
 
 
 @app.get("/api/presets", response_model=PresetListResponse)
@@ -63,7 +67,7 @@ async def get_presets():
 
 @app.post("/api/generate-music")
 async def generate_music(request: MusicGenerationRequest):
-    """Generate music from a text prompt using ElevenLabs Music API."""
+    """Generate audio from a text prompt using ElevenLabs Sound Effects API (works on free tier)."""
     api_key = os.getenv("ELEVENLABS_API_KEY")
     
     if not api_key:
@@ -75,18 +79,16 @@ async def generate_music(request: MusicGenerationRequest):
     try:
         client = ElevenLabs(api_key=api_key)
         
-        # Convert duration from seconds to milliseconds
-        duration_ms = int(request.duration_seconds * 1000)
+        # Enhance prompt for better music-like results
+        enhanced_prompt = request.prompt
+        if request.force_instrumental:
+            enhanced_prompt = f"{request.prompt}, instrumental, no vocals"
         
-        # Clamp duration between 1 second and 5 minutes (ElevenLabs limit)
-        duration_ms = max(1000, min(duration_ms, 300000))
-        
-        # Generate music
-        audio_stream = client.music.compose(
-            prompt=request.prompt,
-            music_length_ms=duration_ms,
-            model_id="music_v1",
-            force_instrumental=request.force_instrumental,
+        # Generate sound effects (available on free tier)
+        # This can create music-like sounds, nature sounds, and ambient audio
+        audio_stream = client.text_to_sound_effects.convert(
+            text=enhanced_prompt,
+            duration_seconds=request.duration_seconds,
         )
         
         # Collect all chunks into bytes
@@ -97,14 +99,21 @@ async def generate_music(request: MusicGenerationRequest):
             BytesIO(audio_data),
             media_type="audio/mpeg",
             headers={
-                "Content-Disposition": f'attachment; filename="generated_music.mp3"'
+                "Content-Disposition": f'attachment; filename="generated_audio.mp3"'
             }
         )
     
     except Exception as e:
+        # Provide more helpful error messages
+        error_msg = str(e)
+        if "payment_required" in error_msg or "paid_plan" in error_msg.lower():
+            raise HTTPException(
+                status_code=402,
+                detail="This feature requires a paid ElevenLabs plan. The Sound Effects API should work on free tier - please check your API key and account status."
+            )
         raise HTTPException(
             status_code=500,
-            detail=f"Error generating music: {str(e)}"
+            detail=f"Error generating audio: {error_msg}"
         )
 
 
