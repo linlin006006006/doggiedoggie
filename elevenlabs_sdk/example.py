@@ -1,4 +1,4 @@
-"""Example: Generate AI meditation music with ElevenLabs."""
+"""Example: Generate AI meditation sounds with ElevenLabs."""
 
 import os
 
@@ -9,7 +9,7 @@ from elevenlabs_sdk import MeditationGenerator
 
 def main():
     print("=" * 60)
-    print("ElevenLabs SDK - AI Meditation Music Demo")
+    print("ElevenLabs SDK - AI Meditation Sounds Demo")
     print("=" * 60)
     print()
 
@@ -26,42 +26,26 @@ def main():
         print("-" * 40)
         print()
 
-        # Show presets even without API key
-        print("Available Meditation Presets:")
-        for name, config in MeditationGenerator.PRESETS.items():
-            print(f"  {name}: {config['description']}")
+        # Show sound presets even without API key
+        print("Available Sound Presets:")
+        sound_presets = [
+            "nature_rain",
+            "ocean_waves",
+            "forest_morning",
+            "tibetan_bowls",
+        ]
+        for name in sound_presets:
+            config = MeditationGenerator.PRESETS.get(name, {})
+            print(f"  {name}: {config.get('description', '')}")
         print()
         return
 
     generator = MeditationGenerator()
 
-    # Show available presets
-    print("Available Meditation Presets:")
-    print("-" * 40)
-    for name, description in generator.list_presets().items():
-        print(f"  {name}: {description}")
-    print()
-
-    # Generate a short meditation sound
-    print("Generating meditation music (30 seconds)...")
-    print("-" * 40)
-    print("  Prompt: gentle ambient piano with soft rain")
-    print()
-
-    audio = generator.generate_meditation_music(
-        prompt="gentle ambient piano with soft rain",
-        duration_seconds=30,
-    )
-
-    output_path = "meditation_music.mp3"
-    audio.save(output_path)
-    print(f"  Saved to: {output_path}")
-    print()
-
     # Generate nature sounds
     print("Generating nature sound (20 seconds)...")
     print("-" * 40)
-    print("  Description: peaceful forest stream")
+    print("  Description: peaceful forest stream with birds")
     print()
 
     nature = generator.generate_nature_sound(
@@ -84,28 +68,27 @@ def main():
     bell.save("meditation_bell.mp3")
     print()
 
-    # Generate from preset
-    print("Generating from 'morning_meditation' preset...")
+    # Generate ocean waves from preset
+    print("Generating from 'ocean_waves' preset...")
     print("-" * 40)
 
-    preset_audio = generator.generate_from_preset(
-        preset="morning_meditation",
+    ocean = generator.generate_from_preset(
+        preset="ocean_waves",
         duration_seconds=30,
     )
 
-    preset_audio.save("morning_meditation.mp3")
+    ocean.save("ocean_waves.mp3")
     print()
 
     print("=" * 60)
     print("Demo complete!")
     print()
     print("Generated files:")
-    print("  - meditation_music.mp3")
     print("  - forest_stream.mp3")
     print("  - meditation_bell.mp3")
-    print("  - morning_meditation.mp3")
+    print("  - ocean_waves.mp3")
     print()
-    print("Try generating longer sessions for actual meditation!")
+    print("See example_music.py for AI music generation!")
     print("=" * 60)
 
 
